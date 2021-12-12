@@ -48,4 +48,9 @@ interface IProposalReview {
 		external
 		view
 		returns (string memory);
+
+	/// @dev Accepts the best proposal for an open bidding.
+	/// @param tokenId uint256 of the token ID
+	/// @param metadata string of the proposal metadata
+	function acceptToOpenBid(uint256 tokenId, string memory metadata) external;
 }

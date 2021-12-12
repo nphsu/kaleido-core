@@ -1610,7 +1610,7 @@ describe('MediaFacade', async () => {
   })
 
   describe('display', async () => {
-    it('should display', async () => {
+    it('should display when being bought by fixed price', async () => {
       const { now, factory, name, pool } = await setupTests()
       const facade = await facadeInstance(factory, name, now)
       const { tokenId, spaceMetadata } = await defaultPeriodProps(facade, now)
@@ -1641,6 +1641,96 @@ describe('MediaFacade', async () => {
       await buyWith(facade.connect(user3), { tokenId })
       await facade.connect(user3).propose(tokenId, proposalMetadata)
       await facade.acceptProposal(tokenId, option())
+
+      expect(await pool.display(spaceMetadata)).to.deep.equal([
+        '',
+        BigNumber.from(0),
+      ])
+    })
+
+    it('should display when being bought by an oepn bidding', async () => {
+      const { now, factory, name, pool, open } = await setupTests()
+      const facade = await facadeInstance(factory, name, now)
+      const { tokenId, saleEndTimestamp, spaceMetadata } =
+        await defaultPeriodProps(facade, now)
+      const proposalMetadata = '3j34tw3jtwkejjauuwdsfj;lksja'
+      const proposalMetadata2 = 'asfdjaij34rwerak13rwkeaj;lksja'
+      const selectReason = 'sfkajijwejlaksjfajljakljdsaj'
+
+      const pricing = 4
+      const minPrice = parseEther('0.2')
+      await newPeriodWith(facade, {
+        now,
+        pricing,
+        minPrice,
+        saleEndTimestamp,
+      })
+      await facade
+        .connect(user3)
+        .bidWithProposal(
+          tokenId,
+          proposalMetadata,
+          option({ value: parseEther('0.3') })
+        )
+      await facade
+        .connect(user4)
+        .bidWithProposal(
+          tokenId,
+          proposalMetadata2,
+          option({ value: parseEther('0.4') })
+        )
+      await facade.setTime(saleEndTimestamp + 1)
+      await open.setTime(saleEndTimestamp + 1)
+      await facade
+        .connect(user2)
+        .selectProposal(tokenId, 1, selectReason, option())
+
+      // passed to the start of displaying
+      await facade.setTime(now + 4000)
+      await pool.setTime(now + 4000)
+
+      expect(await pool.display(spaceMetadata)).to.deep.equal([
+        proposalMetadata2,
+        tokenId,
+      ])
+    })
+
+    it('should not display before it starts', async () => {
+      const { now, factory, name, pool, open } = await setupTests()
+      const facade = await facadeInstance(factory, name, now)
+      const { tokenId, saleEndTimestamp, spaceMetadata } =
+        await defaultPeriodProps(facade, now)
+      const proposalMetadata = '3j34tw3jtwkejjauuwdsfj;lksja'
+      const proposalMetadata2 = 'asfdjaij34rwerak13rwkeaj;lksja'
+      const selectReason = 'sfkajijwejlaksjfajljakljdsaj'
+
+      const pricing = 4
+      const minPrice = parseEther('0.2')
+      await newPeriodWith(facade, {
+        now,
+        pricing,
+        minPrice,
+        saleEndTimestamp,
+      })
+      await facade
+        .connect(user3)
+        .bidWithProposal(
+          tokenId,
+          proposalMetadata,
+          option({ value: parseEther('0.3') })
+        )
+      await facade
+        .connect(user4)
+        .bidWithProposal(
+          tokenId,
+          proposalMetadata2,
+          option({ value: parseEther('0.4') })
+        )
+      await facade.setTime(saleEndTimestamp + 1)
+      await open.setTime(saleEndTimestamp + 1)
+      await facade
+        .connect(user2)
+        .selectProposal(tokenId, 1, selectReason, option())
 
       expect(await pool.display(spaceMetadata)).to.deep.equal([
         '',

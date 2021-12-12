@@ -25,6 +25,11 @@ contract ProposalReview is IProposalReview, BlockTimestamp, NameAccessor {
 		_;
 	}
 
+	modifier onlyOpenBid() {
+		require(msg.sender == openBidAddress(), "KD011");
+		_;
+	}
+
 	constructor(address _nameRegistry) {
 		initialize(_nameRegistry);
 	}
@@ -59,6 +64,16 @@ contract ProposalReview is IProposalReview, BlockTimestamp, NameAccessor {
 		require(bytes(metadata).length != 0, "KD130");
 		deniedReasons[tokenId].push(Denied(reason, offensive));
 		_event().emitDenyProposal(tokenId, metadata, reason, offensive);
+	}
+
+	/// @inheritdoc IProposalReview
+	function acceptToOpenBid(uint256 tokenId, string memory metadata)
+		external
+		virtual
+		onlyOpenBid
+	{
+		accepted[tokenId] = metadata;
+		_event().emitAcceptProposal(tokenId, metadata);
 	}
 
 	/// @inheritdoc IProposalReview
