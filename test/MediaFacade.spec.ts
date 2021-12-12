@@ -832,7 +832,7 @@ describe('MediaFacade', async () => {
 
   describe('selectProposal', async () => {
     it('should select a proposal', async () => {
-      const { now, factory, name, event, open } = await setupTests()
+      const { now, factory, name, event, open, review } = await setupTests()
       const facade = await facadeInstance(factory, name, now)
       const { tokenId, saleEndTimestamp } = await defaultPeriodProps(
         facade,
@@ -881,6 +881,18 @@ describe('MediaFacade', async () => {
       expect(await facade.withdrawalAmount()).to.be.eq(parseEther('0.36'))
       expect(await open.biddingList(tokenId)).to.deep.equal([])
       expect(await open.reasons(tokenId)).to.be.eq(selectReason)
+      expect(await review.acceptedContent(tokenId)).to.be.eq(proposalMetadata2)
+    })
+
+    it('should not call acceptToOpenBid directly', async () => {
+      const { now, factory, name, review } = await setupTests()
+      const facade = await facadeInstance(factory, name, now)
+      const { tokenId } = await defaultPeriodProps(facade, now)
+      const proposalMetadata = '3j34tw3jtwkejjauuwdsfj;lksja'
+
+      await expect(
+        review.acceptToOpenBid(tokenId, proposalMetadata)
+      ).to.be.revertedWith('KD011')
     })
 
     it('should select a proposal with 3 members', async () => {
