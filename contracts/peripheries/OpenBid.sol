@@ -9,6 +9,7 @@ import "../interfaces/IAdPool.sol";
 import "../interfaces/IEventEmitter.sol";
 import "../interfaces/IOpenBid.sol";
 import "../interfaces/IMediaRegistry.sol";
+import "../interfaces/IProposalReview.sol";
 
 contract OpenBid is IOpenBid, BlockTimestamp, NameAccessor {
 	/// @dev Maps a tokenId with appeal info
@@ -64,6 +65,7 @@ contract OpenBid is IOpenBid, BlockTimestamp, NameAccessor {
 			"KD129"
 		);
 		selected = bidding(tokenId, index);
+		_review().acceptToOpenBid(tokenId, selected.content);
 		reasons[tokenId] = reason;
 		delete _bidding[tokenId][index];
 		nonSelected = _bidding[tokenId];
@@ -97,6 +99,10 @@ contract OpenBid is IOpenBid, BlockTimestamp, NameAccessor {
 	 */
 	function _adPool() internal view returns (IAdPool) {
 		return IAdPool(adPoolAddress());
+	}
+
+	function _review() internal view virtual returns (IProposalReview) {
+		return IProposalReview(proposalReviewAddress());
 	}
 
 	function _event() internal view virtual returns (IEventEmitter) {
