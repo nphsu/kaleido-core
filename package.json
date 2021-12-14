@@ -4,6 +4,7 @@
     "deploy:rinkeby": "cross-env NETWORK=rinkeby npx hardhat deploy --network rinkeby",
     "deploy:polygon": "cross-env NETWORK=polygon npx hardhat deploy --network polygon",
     "exec:newMedia:rinkeby": "cross-env NETWORK=rinkeby npx hardhat run scripts/exec/newMedia.ts --network rinkeby",
+    "exec:newMedia:polygon": "cross-env NETWORK=polygon npx hardhat run scripts/exec/newMedia.ts --network polygon",
     "exec:newSpace:rinkeby": "cross-env NETWORK=rinkeby npx hardhat run scripts/exec/newSpace.ts --network rinkeby",
     "exec:newPeriod:rinkeby": "cross-env NETWORK=rinkeby npx hardhat run scripts/exec/newPeriod.ts --network rinkeby",
     "exec:buy:rinkeby": "cross-env NETWORK=rinkeby npx hardhat run scripts/exec/buy.ts --network rinkeby",
